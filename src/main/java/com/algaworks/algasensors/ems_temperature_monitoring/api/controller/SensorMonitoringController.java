@@ -6,8 +6,12 @@ import com.algaworks.algasensors.ems_temperature_monitoring.domain.model.SensorM
 import com.algaworks.algasensors.ems_temperature_monitoring.domain.repository.SensorMonitoringRepository;
 import io.hypersistence.tsid.TSID;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.time.Duration;
 
 @RestController
 @RequestMapping("/api/sensors/{sensorId}/monitoring")
@@ -42,14 +46,25 @@ public class SensorMonitoringController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void enable(@PathVariable TSID sensorId) {
         SensorMonitoring sensorMonitoring = findByIdOrDefault(sensorId);
+        //aula 11.03
+        if(Boolean.TRUE.equals(sensorMonitoring.getEnabled())){
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+        //fim aula 11.03
         sensorMonitoring.setEnabled(true);
         sensorMonitoringRepository.saveAndFlush(sensorMonitoring);
     }
 
+    @SneakyThrows //aula 11.04
     @DeleteMapping("/enable")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void disable(@PathVariable TSID sensorId) {
         SensorMonitoring sensorMonitoring = findByIdOrDefault(sensorId);
+        //aula 11.04
+        if(Boolean.FALSE.equals(sensorMonitoring.getEnabled())){
+            Thread.sleep(Duration.ofSeconds(10));
+        }
+        //fim aula 11.04
         sensorMonitoring.setEnabled(false);
         sensorMonitoringRepository.saveAndFlush(sensorMonitoring);
     }
